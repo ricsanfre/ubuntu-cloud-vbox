@@ -57,7 +57,7 @@ VM is created with two interfaces:
     vboxmanage list hostonlyifs
     vboxmanage list bridgedifs
 
-```
+
 Example execution:
 
 ```
