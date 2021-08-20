@@ -26,6 +26,11 @@ Required Software:
  - [CDBurnerXP](https://cdburnerxp.se/)
  - [PowerShell 7.0](https://github.com/PowerShell/PowerShell)
 
+
+Create in windows a `SCRIPT` folder and place there script `create_vbox_vm_ubuntu_cloud.ps1`
+Within SCRIPT directory create a `templates` directory and copy template files from the repository:
+This folder contains the user-data and network-config templates used by the script.
+
 From PowerShell console execute the script `create_vbox_vm_ubuntu_cloud.ps1`
 
 Script execution
@@ -45,7 +50,7 @@ Parameters:
 - **ip**: (M) must belong to VBox HostOnly network
 - **path**: (O) Base path used for creating the VM directory (default value: '.' current directory). A directory with name **name** is created in **path** directory. If a server already exists within that directory, VM is not created. 
 - **memory**: (O) VM memory in MB (default value 1024, 1GB)
-- **disk_size>** (O) VM disk size in MB (default value 8192, 8GB)
+- **disk_size** (O) VM disk size in MB (default value 8192, 8GB)
 - **vbox_bridged_adapter** (O) and **vbox_host_only_adapter** (O): VBOX interfaces names
 
 VM is created with two interfaces:
@@ -57,6 +62,12 @@ VM is created with two interfaces:
     vboxmanage list hostonlyifs
     vboxmanage list bridgedifs
 
+
+The script will be use user-data and network-config templates located in `templates` directory named with `server_name` suffix:
+- user-data-<name>.yml
+- network-config-<name>.yml
+
+If any of the files is missing the `default` files will be used.
 
 Example execution:
 
@@ -111,7 +122,7 @@ Clone Vdi disk procedure generated in step 3 every time a new VM need to be crea
 Authentication using SSH keys will be the only mechanism available to login to the server.
 We will create SSH keys for two different users:
 
-- **ubuntu** user, used to connect from my home laptop
+- **ricsanfre** user, used to connect from my home laptop
 
     For generating SSH private/public key in Windows, Putty Key Generator can be used:
 
@@ -148,37 +159,39 @@ For creating the iso file from my windows labtop an open-source tool like [CDBur
      ```
 - Create a file `user-data`
 
-    ```
+    ```yml
     #cloud-config
-    
-    # Disable password authentication with the SSH daemon
-    ssh_pwauth: false
-    # SSH authorized keys for default user (ubuntu)
-    ssh_authorized_keys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAusTXKfFoy6p3G4QAHvqoBK+9Vn2+cx2G5AY89WmjMikmeTG9KUseOCIAx22BCrFTNryMZ0oLx4u3M+Ibm1nX76R3Gs4b+gBsgf0TFENzztST++n9/bHYWeMVXddeV9RFbvPnQZv/TfLfPUejIMjFt26JCfhZdw3Ukpx9FKYhFDxr2jG9hXzCY9Ja2IkVwHuBcO4gvWV5xtI1nS/LvMw44Okmlpqos/ETjkd12PLCxZU6GQDslUgGZGuWsvOKbf51sR+cvBppEAG3ujIDySZkVhXqH1SSaGQbxF0pO6N5d4PWus0xsafy5z1AJdTeXZdBXPVvUSNVOUw8lbL+RTWI2Q== ubuntu@mi_pc
-
     # Set TimeZone and Locale
     timezone: Europe/Madrid
     locale: es_ES.UTF-8
 
     # Hostname
-    hostname: node1
-    manage_etc_hosts: true
-    # Users
+    hostname: servername
+    # Ensure an entry in /etc/host is created
+    manage_etc_hosts: localhost
+
+    # Users. Remove default (ubuntu) + ansible user for remoto control
     users:
-      - default
-      - name: ansible
+    - name: ricsanfre
+        gecos: Ricardo Sanchez
         primary_group: users
         shell: /bin/bash
         sudo: ALL=(ALL) NOPASSWD:ALL
         lock_passwd: true
         ssh_authorized_keys:
-          - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDsVSvxBitgaOiqeX4foCfhIe4yZj+OOaWP+wFuoUOBCZMWQ3cW188nSyXhXKfwYK50oo44O6UVEb2GZiU9bLOoy1fjfiGMOnmp3AUVG+e6Vh5aXOeLCEKKxV3I8LjMXr4ack6vtOqOVFBGFSN0ThaRTZwKpoxQ+pEzh+Q4cMJTXBHXYH0eP7WEuQlPIM/hmhGa4kIw/A92Rm0ZlF2H6L2QzxdLVnLAkt9C+6tH62hepcMCIQFPvHVUqj93hpmNm9MQI4hM7uK5qyH8wGi3nmPuX311km3hkd5O6XT5KNZq9Nk1HTC2GHqYzwha/cAka5pRUfZmWkJrEuV3sNAl ansible@pimaster
-
+        - ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAusTXKfFoy6p3G4QAHvqoBK+9Vn2+cx2G5AY89WmjMikmeTG9KUseOCIAx22BCrFTNryMZ0oLx4u3M+Ibm1nX76R3Gs4b+gBsgf0TFENzztST++n9/bHYWeMVXddeV9RFbvPnQZv/TfLfPUejIMjFt26JCfhZdw3Ukpx9FKYhFDxr2jG9hXzCY9Ja2IkVwHuBcO4gvWV5xtI1nS/LvMw44Okmlpqos/ETjkd12PLCxZU6GQDslUgGZGuWsvOKbf51sR+cvBppEAG3ujIDySZkVhXqH1SSaGQbxF0pO6N5d4PWus0xsafy5z1AJdTeXZdBXPVvUSNVOUw8lbL+RTWI2Q== ubuntu@mi_pc
+    - name: ansible
+        gecos: Ansible user
+        primary_group: users
+        shell: /bin/bash
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        lock_passwd: true
+        ssh_authorized_keys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDsVSvxBitgaOiqeX4foCfhIe4yZj+OOaWP+wFuoUOBCZMWQ3cW188nSyXhXKfwYK50oo44O6UVEb2GZiU9bLOoy1fjfiGMOnmp3AUVG+e6Vh5aXOeLCEKKxV3I8LjMXr4ack6vtOqOVFBGFSN0ThaRTZwKpoxQ+pEzh+Q4cMJTXBHXYH0eP7WEuQlPIM/hmhGa4kIw/A92Rm0ZlF2H6L2QzxdLV/2LmnLAkt9C+6tH62hepcMCIQFPvHVUqj93hpmNm9MQI4hM7uK5qyH8wGi3nmPuX311km3hkd5O6XT5KNZq9Nk1HTC2GHqYzwha/cAka5pRUfZmWkJrEuV3sNAl ansible@pimaster
     ```
 - Create network-configuration file
 
-    ```
+    ```yml
     version: 2
     ethernets:
     enp0s3:

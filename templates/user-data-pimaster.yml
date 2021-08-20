@@ -1,0 +1,66 @@
+#cloud-config
+
+# Set TimeZone and Locale
+timezone: Europe/Madrid
+locale: es_ES.UTF-8
+
+# Hostname
+hostname: {0}
+
+manage_etc_hosts: localhost
+
+## Add docker apt repository
+apt:
+  sources:
+    docker.list:
+      source: deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable
+      keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+
+# Update packge cache
+
+package_update: true
+# Install docker and python packages
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - git
+  - software-properties-common
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - build-essential
+  - python3-dev
+  - python3-pip
+  - python3-setuptools
+  - python3-yaml
+
+# Enable ipv4 forwarding
+write_files:
+  - path: /etc/sysctl.d/enabled_ipv4_forwarding.conf
+    content: |
+      net.ipv4.conf.all.forwarding=1
+
+# create the docker group
+groups:
+  - docker
+
+# Users. Remove default (ubuntu) + ansible user for remoto control
+users:
+  - name: ricsanfre
+    gecos: Ricardo Sanchez
+    primary_group: users
+    groups: [docker]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAusTXKfFoy6p3G4QAHvqoBK+9Vn2+cx2G5AY89WmjMikmeTG9KUseOCIAx22BCrFTNryMZ0oLx4u3M+Ibm1nX76R3Gs4b+gBsgf0TFENzztST++n9/bHYWeMVXddeV9RFbvPnQZv/TfLfPUejIMjFt26JCfhZdw3Ukpx9FKYhFDxr2jG9hXzCY9Ja2IkVwHuBcO4gvWV5xtI1nS/LvMw44Okmlpqos/ETjkd12PLCxZU6GQDslUgGZGuWsvOKbf51sR+cvBppEAG3ujIDySZkVhXqH1SSaGQbxF0pO6N5d4PWus0xsafy5z1AJdTeXZdBXPVvUSNVOUw8lbL+RTWI2Q== ubuntu@mi_pc
+# Install Ansible
+runcmd:
+  - sudo pip3 install --upgrade pip setuptools
+  - sudo pip3 install ansible
+  - sudo pip3 install yamllint ansible-lint
+  - sudo pip3 install molecule[docker]

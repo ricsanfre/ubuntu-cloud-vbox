@@ -1,0 +1,7 @@
+version: 2
+ethernets:
+  enp0s3:
+    dhcp4: no
+    addresses: [{0}/24]
+  enp0s8:
+    dhcp4: yes
