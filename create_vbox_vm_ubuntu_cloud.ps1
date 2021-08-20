@@ -70,7 +70,7 @@ if ( -not (Test-Path -Path ${script_base}\templates\user-data-${userdata_templat
   $userdata_template = 'default'
 }
 
-if ( -not (Test-Path -Path ${script_base}\templates\networ-config-${network_template}.yml) )
+if ( -not (Test-Path -Path ${script_base}\templates\network-config-${network_template}.yml) )
 {
   # If specific network-config template does not exit use default template
   $network_template = 'default'
