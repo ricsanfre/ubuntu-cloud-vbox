@@ -19,7 +19,8 @@ param([Switch] $help,
       [string] $name='',
       [string] $ip='', 
       [int] $memory=1024,
-      [int] $disk_size=8192,
+      [int] $cores=1,
+      [int] $disk=8192,
       [string] $vbox_bridged_adapter="Intel(R) Dual Band Wireless-AC 7265",
       [string] $vbox_host_only_adapter="VirtualBox Host-Only Ethernet Adapter"
       )
@@ -32,6 +33,7 @@ if ( $help -or ( $name -eq '') -or ( $ip -eq '' ) )
   echo "                                  -path <path>" 
   echo "                                  -ip <server_ip>"
   echo "                                  -memory <server_memory_MB>"
+  secho "                                 -cores <cpu_cores>"
   echo "                                  -disk_size <server_disk_size_MB>"
   echo "                                  -vbox_bridged_adapter <bridged_if>"
   echo "                                  -vbox_host_only_adapter <hostonly_if>"
@@ -51,6 +53,7 @@ $script_base = $PSScriptRoot
 $server_name=$name
 $server_ip=$ip
 $server_memory=$memory
+$server_cores=$cores
 $server_disk_size=$disk_size
 
 $working_directory="${base_path}\${server_name}"
@@ -202,7 +205,12 @@ echo "Creating seed.iso"
 # Step 10. Create VM
 echo "Creating VM ${server_name}"
 & "C:\Program Files\Oracle\VirtualBox\vboxmanage.exe" createvm --name ${server_name} --register
-& "C:\Program Files\Oracle\VirtualBox\vboxmanage.exe" modifyvm ${server_name} --memory ${server_memory} --acpi on --nic1 hostonly --hostonlyadapter1 "${vbox_host_only_adapter}" --nic2 bridged --bridgeadapter2 "${vbox_bridged_adapter}"
+& "C:\Program Files\Oracle\VirtualBox\vboxmanage.exe" modifyvm ${server_name} --cpus ${server_cores} --memory ${server_memory} --acpi on --nic1 hostonly --hostonlyadapter1 "${vbox_host_only_adapter}" --nic2 bridged --bridgeadapter2 "${vbox_bridged_adapter}"
+
+# Enabling nested virtualization
+& "C:\Program Files\Oracle\VirtualBox\vboxmanage.exe" modifyvm ${server_name} --nested-hw-virt on
+
+
 # Adding SATA controler
 
 & "C:\Program Files\Oracle\VirtualBox\vboxmanage.exe" storagectl ${server_name} --name "SATA"  --add sata --controller IntelAhci --portcount 5

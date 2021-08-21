@@ -38,6 +38,7 @@ Script execution
 create_vbox_vm_ubuntu_cloud.ps1 -name <server_name>
                                 -path <path>
                                 -ip <server_ip>
+                                -cores <cpu_cores>
                                 -memory <server_memory_MB>
                                 -disk_size <server_disk_size_MB>
                                 -vbox_bridged_adapter <bridged_if>
@@ -50,6 +51,7 @@ Parameters:
 - **ip**: (M) must belong to VBox HostOnly network
 - **path**: (O) Base path used for creating the VM directory (default value: '.' current directory). A directory with name **name** is created in **path** directory. If a server already exists within that directory, VM is not created. 
 - **memory**: (O) VM memory in MB (default value 1024, 1GB)
+- **cores**: (O) VM cpu cores (default value 1)
 - **disk_size** (O) VM disk size in MB (default value 8192, 8GB)
 - **vbox_bridged_adapter** (O) and **vbox_host_only_adapter** (O): VBOX interfaces names
 
