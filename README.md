@@ -34,6 +34,8 @@ This folder contains the user-data and network-config templates used by the scri
 From PowerShell console execute the script `create_vbox_vm_ubuntu_cloud.ps1`
 
 Script execution
+
+
 ```
 create_vbox_vm_ubuntu_cloud.ps1 -name <server_name>
                                 -path <path>
@@ -41,33 +43,41 @@ create_vbox_vm_ubuntu_cloud.ps1 -name <server_name>
                                 -cores <cpu_cores>
                                 -memory <server_memory_MB>
                                 -disk_size <server_disk_size_MB>
+                                -ubuntuversion <ubuntu_release>
                                 -vbox_bridged_adapter <bridged_if>
                                 -vbox_host_only_adapter <hostonly_if>
+                                -force_download <true/false>
 
 ```
 
+
 Parameters:
+
 - **name**: (M) server name. VM server name and hostname. (M)
 - **ip**: (M) must belong to VBox HostOnly network
-- **path**: (O) Base path used for creating the VM directory (default value: '.' current directory). A directory with name **name** is created in **path** directory. If a server already exists within that directory, VM is not created. 
+- **path**: (O) Base path used for creating the VM directory (default value: '.' current directory). A directory with name - **name** is created in **path** directory. If a server already exists within that directory, VM is not created. 
 - **memory**: (O) VM memory in MB (default value 1024, 1GB)
 - **cores**: (O) VM cpu cores (default value 1)
 - **disk_size** (O) VM disk size in MB (default value 8192, 8GB)
+- **ubuntu_version** (O) Ubuntu relase 18.04, 20.04 (default value 20.04)
 - **vbox_bridged_adapter** (O) and **vbox_host_only_adapter** (O): VBOX interfaces names
+- **force_download** (O): Force download of img even when there is an existing image
+
 
 VM is created with two interfaces:
-  - NIC1 hostonly with static ip **ip*
-  - NIC2 bridgeadapter with dynamic ip, dhcp
+- **NIC1** hostonly with static ip (server_ip)
+- **NIC2** bridgeadapter with dynamic ip, dhcp
 
 > NOTE: VBOX interfaces adapter names might need to be adapted to your own environment
 > Commands for obtained VBOX configured interfaces
     vboxmanage list hostonlyifs
     vboxmanage list bridgedifs
 
+The script will download img from ubuntu website if it is not available in **img** directory or *force_download* true parameter has been selected
 
-The script will be use user-data and network-config templates located in `templates` directory named with `server_name` suffix:
-- user-data-<name>.yml
-- network-config-<name>.yml
+The script will be use user-data and network-config templates located in **templates** directory named with *server_name* suffix:
+- user-data-*server_name*.yml
+- network-config-*server_name*.yml
 
 If any of the files is missing the `default` files will be used.
 
@@ -76,7 +86,6 @@ Example execution:
 ```
 create_vbox_vm_ubuntu_cloud.ps1 -name "server_name" -ip "192.168.56.201"
 ```
-
 
 ## Manual Instructions
 
