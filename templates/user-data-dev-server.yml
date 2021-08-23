@@ -9,12 +9,18 @@ hostname: {0}
 
 manage_etc_hosts: localhost
 
-## Add docker apt repository
+## Add docker and vagrant apt repository
+## GPG keys need to be added
+## Docker: curl -sL https://download.docker.com/linux/ubuntu/gpg | gpg
+## Hashicorp: curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg
 apt:
   sources:
     docker.list:
       source: deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable
       keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    vagrant.list:
+      source: deb [arch=amd64] https://apt.releases.hashicorp.com $RELEASE main
+      keyid: E8A032E094D8EB4EA189D270DA418C88A3219F7B
 
 # Update packge cache
 
@@ -36,6 +42,22 @@ packages:
   - python3-pip
   - python3-setuptools
   - python3-yaml
+  - qemu
+  - qemu-kvm
+  - libvirt-clients
+  - libvirt-daemon-system
+  - virtinst
+  - bridge-utils
+  - vagrant
+  - libxslt-dev
+  - libxml2-dev
+  - libvirt-dev
+  - zlib1g-dev
+  - ruby-dev
+  - ruby-libvirt
+  - ebtables
+  - dnsmasq-base
+  - libguestfs-tools 
 
 # Enable ipv4 forwarding
 write_files:
@@ -43,16 +65,17 @@ write_files:
     content: |
       net.ipv4.conf.all.forwarding=1
 
-# create the docker group
+# create the docker and libvirt group
 groups:
   - docker
+  - libvirt
 
-# Users. Remove default (ubuntu) + ansible user for remoto control
+# Users. Remove default (ubuntu)
 users:
   - name: ricsanfre
     gecos: Ricardo Sanchez
     primary_group: users
-    groups: [docker]
+    groups: [docker, libvirt]
     shell: /bin/bash
     sudo: ALL=(ALL) NOPASSWD:ALL
     lock_passwd: true
@@ -64,3 +87,5 @@ runcmd:
   - su - ricsanfre -c "pip3 install ansible"
   - su - ricsanfre -c "pip3 install yamllint ansible-lint"
   - su - ricsanfre -c "pip3 install molecule[docker]"
+  - su - ricsanfre -c "vagrant plugin install vagrant-libvirt" 
+  - su - ricsanfre -c "vagrant plugin install vagrant-mutate"
