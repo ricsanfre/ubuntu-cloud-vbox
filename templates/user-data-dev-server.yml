@@ -86,6 +86,6 @@ runcmd:
   - su - ricsanfre -c "pip3 install --upgrade pip setuptools"
   - su - ricsanfre -c "pip3 install ansible"
   - su - ricsanfre -c "pip3 install yamllint ansible-lint"
-  - su - ricsanfre -c "pip3 install molecule[docker]"
+  - su - ricsanfre -c "pip3 install molecule[docker] molecule-vagrant python-vagrant"
   - su - ricsanfre -c "vagrant plugin install vagrant-libvirt" 
   - su - ricsanfre -c "vagrant plugin install vagrant-mutate"
