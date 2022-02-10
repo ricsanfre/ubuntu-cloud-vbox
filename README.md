@@ -87,6 +87,34 @@ Example execution:
 create_vbox_vm_ubuntu_cloud.ps1 -name "server_name" -ip "192.168.56.201"
 ```
 
+## Bash script for Ubuntu host
+
+Required Software: qemu-utils and cloud-image-utils
+
+```shell
+sudo apt-get install qemu-utils cloud-image-utils
+```
+
+Create a `SCRIPT` folder and place there script `create_vbox_vm_ubuntu_cloud.sh`
+Within SCRIPT directory create a `templates` directory and copy template files from the repository:
+This folder contains the user-data and network-config templates used by the script.
+
+From the directory where the VM is going to be located exectute the script `create_vbox_vm_ubuntu_cloud.sh`
+
+Script execution
+
+
+```
+create_vbox_vm_ubuntu_cloud.ps1 -n <server_name>
+                                -ip <server_ip>
+                                -c <cpu_cores>
+                                -m <server_memory_MB>
+                                -d <server_disk_size_MB>
+                                -r <ubuntu_release>
+                                -f <force download>
+
+```
+
 ## Manual Instructions
 
 ### Step 1. Download Ubuntu 20.04 LTS 64 bits cloud-image in VMDK format

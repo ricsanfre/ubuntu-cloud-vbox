@@ -9,13 +9,14 @@ usage() {
 
     Options:
     -n <server_name>
-    -p <path>
     -i <server_ip>
     -c <cpu_cores>
+    -m <memory>
+    -d <disk_size>
+    -r <ubuntu_release>
     "
 
-    echo "Usage: $0 [-n <server_name>] [-p <path>] -i <server_ip> -c <cpu_cores> -m <memory> 
-          -d <disk_size> -r <ubuntu_release>" 1>&2; 
+    echo "$_usage" 
     exit 1; 
 
 }
@@ -68,7 +69,7 @@ shift $((OPTIND-1))
 
 
 # Printing help message
-if [ $name -eq '' ] | [ $ip -eq '' ]
+if [ -z "$name" ] | [ -z "$ip" ]
 then
   usage
   exit
