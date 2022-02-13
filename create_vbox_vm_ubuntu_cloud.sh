@@ -37,7 +37,7 @@ force_download="false"
 vbox_bridged_adapter="wlp2s0"
 vbox_host_only_adapter="vboxnet0"
 
-while getopts ":n:p:i:c:m:d:r:" o; do
+while getopts ":n:p:i:c:m:d:r:f" o; do
     case "${o}" in
         n)
             name=${OPTARG}
@@ -59,6 +59,9 @@ while getopts ":n:p:i:c:m:d:r:" o; do
             ;;
         r)
             ubuntuversion=${OPTARG}
+            ;;
+        f)
+            force_download="true"
             ;;
         *)
             usage
