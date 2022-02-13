@@ -1,6 +1,6 @@
 # Creation Ubuntu VM in VBox from Ubuntu cloud image
 
-This repository contains the manual instructions and Windows' PowerShell automation script for generating a VM in VBox from Ubuntu Cloud Image
+This repository contains the manual instructions and automation scripts (Windows' PowerShell and Linux bash) for generating a VM in VBox from Ubuntu Cloud Image. Windows and Ubuntu VirtualBox Host OS are supported.
 
 
 ## Why
@@ -18,7 +18,7 @@ Cloud-init metadata and user-data can be provided to a local VM boot via files i
 
 Network configuration can be provided to cloud-init formated in yaml file `network-config`
 
-## PowerShell script for Windows
+## PowerShell script for Windows. Windows as VirtualBox Host OS
 
 Required Software:
  - [Oracle VBox](https://www.virtualbox.org/)
@@ -73,9 +73,9 @@ VM is created with two interfaces:
     vboxmanage list hostonlyifs
     vboxmanage list bridgedifs
 
-The script will download img from ubuntu website if it is not available in **img** directory or *force_download* true parameter has been selected
+The script will download img from ubuntu website if it is not available in `img` directory or *force_download* true parameter has been selected
 
-The script will be use user-data and network-config templates located in **templates** directory named with *server_name* suffix:
+The script will be use user-data and network-config templates located in `templates` directory named with *server_name* suffix:
 - user-data-*server_name*.yml
 - network-config-*server_name*.yml
 
@@ -87,9 +87,11 @@ Example execution:
 create_vbox_vm_ubuntu_cloud.ps1 -name "server_name" -ip "192.168.56.201"
 ```
 
-## Bash script for Ubuntu host
+## Bash script for Ubuntu host. Ubuntu as VirtualBox Host OS
 
-Required Software: qemu-utils and cloud-image-utils
+Required Software:
+ - qemu-utils
+ - cloud-image-utils
 
 ```shell
 sudo apt-get install qemu-utils cloud-image-utils
@@ -115,7 +117,17 @@ create_vbox_vm_ubuntu_cloud.ps1 -n <server_name>
 
 ```
 
-## Manual Instructions
+The script will download img from ubuntu website if it is not available in `img` directory or *force_download* option (-f) is being used.
+
+The script will be use user-data and network-config templates located in `templates` directory named with *server_name* suffix:
+- user-data-*server_name*.yml
+- network-config-*server_name*.yml
+
+If any of the files is missing the `default` files will be used.
+
+
+
+## Manual Instructions.
 
 ### Step 1. Download Ubuntu 20.04 LTS 64 bits cloud-image in VMDK format
 
@@ -187,7 +199,9 @@ Public-key string will be used in Step 6 to configure ssh_authorized_keys of the
 
 ### Step 6. Create seed iso file
 
-For creating the iso file from my windows labtop an open-source tool like [CDBurnerXP](https://cdburnerxp.se/)
+For creating the iso file in a windows hots, an open-source tool like [CDBurnerXP](https://cdburnerxp.se/).
+
+For Ubuntu host a utility `cloud-localds` can be used (this utility is part of the package `cloud-image-utils`)
 
 - Create in a temporary directory `seed_iso`
 - Create a file `meta-data`
@@ -197,7 +211,7 @@ For creating the iso file from my windows labtop an open-source tool like [CDBur
      local-hostname: ubuntucloud1
      ```
 - Create a file `user-data`
-
+  
     ```yml
     #cloud-config
     # Set TimeZone and Locale
@@ -228,8 +242,8 @@ For creating the iso file from my windows labtop an open-source tool like [CDBur
         ssh_authorized_keys:
         - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDsVSvxBitgaOiqeX4foCfhIe4yZj+OOaWP+wFuoUOBCZMWQ3cW188nSyXhXKfwYK50oo44O6UVEb2GZiU9bLOoy1fjfiGMOnmp3AUVG+e6Vh5aXOeLCEKKxV3I8LjMXr4ack6vtOqOVFBGFSN0ThaRTZwKpoxQ+pEzh+Q4cMJTXBHXYH0eP7WEuQlPIM/hmhGa4kIw/A92Rm0ZlF2H6L2QzxdLV/2LmnLAkt9C+6tH62hepcMCIQFPvHVUqj93hpmNm9MQI4hM7uK5qyH8wGi3nmPuX311km3hkd5O6XT5KNZq9Nk1HTC2GHqYzwha/cAka5pRUfZmWkJrEuV3sNAl ansible@pimaster
     ```
-- Create network-configuration file
-
+- Create `network-configuration` file
+  
     ```yml
     version: 2
     ethernets:
@@ -240,13 +254,22 @@ For creating the iso file from my windows labtop an open-source tool like [CDBur
       dhcp4: yes
     ```
 
-- Create ISO file with [CDBurnerXP](https://cdburnerxp.se/)
+- Create ISO file with [CDBurnerXP](https://cdburnerxp.se/) (Windows Host)
     
-    Select the folder where the files has been generated and specify `CIDATA` as Volume Name
+  
+  Select the folder where the files has been generated and specify `CIDATA` as Volume Name
 
-    In windows the command should be something like this:
+  In windows the command should be something like this:
 
-        "C:\Program Files\CDBurnerXP\cdbxpcmd.exe" --burndata -folder:seed_iso -iso:seed.iso -format:iso -changefiledates -name:CIDATA
+  ```dos
+  "C:\Program Files\CDBurnerXP\cdbxpcmd.exe" --burndata -folder:seed_iso -iso:seed.iso -format:iso -changefiledates -name:CIDATA
+  ```
+
+- Create ISO file with clouds-local (Ubuntu Host)
+
+  ```shell
+  cloud-localds --network-config network-config seed.iso user-data meta-data
+  ```
 
 ### Step 7. Create VM in VirtualBOX
 
