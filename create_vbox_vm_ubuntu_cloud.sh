@@ -24,7 +24,7 @@ usage() {
 # Default values
 
 ## version for the image in numbers (14.04, 16.04, 18.04, etc.)
-ubuntuversion="20.04"
+ubuntuversion="22.04"
 ## Memory in MB
 mem=1024
 # Num of CPU-cores
@@ -35,7 +35,7 @@ disk=8192
 force_download="false"
 
 vbox_bridged_adapter="wlp2s0"
-vbox_host_only_adapter="vboxnet0"
+vbox_host_only_adapter="vboxnet1"
 
 while getopts ":n:p:i:c:m:d:r:f" o; do
     case "${o}" in
@@ -197,6 +197,12 @@ img_url="${releases_url}/ubuntu-${ubuntuversion}-server-cloudimg-amd64.${imagety
 img_dist="${img_url##*/}"
 img_raw="${img_dist%.img}.raw"
 img_vdi="ubuntu-${ubuntuversion}-cloud-virtualbox.vdi"
+
+# Step 1. Create working directory
+mkdir -p $WORKINGDIR
+
+# Step 2. Move to working directory
+cd $WORKINGDIR
 
 echo $img_dist
 # Step 3 download Img if not already downloaded or force download has been selected
